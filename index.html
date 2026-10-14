@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pagina informativa</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 70px 20px;
+      background: #f4f6f8;
+      overflow-x: hidden;
+    }
+
+    /* Sfondo colorato */
+    body.party {
+      animation: colori 0.6s steps(1, end) infinite;
+    }
+
+    @keyframes colori {
+      0%   { background: #ff0000; }
+      16%  { background: #00cc44; }
+      32%  { background: #0080ff; }
+      48%  { background: #ff00ff; }
+      64%  { background: #ffff00; }
+      80%  { background: #00ffff; }
+      100% { background: #ff6600; }
+    }
+
+    button {
+      padding: 15px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #222;
+      color: white;
+    }
+
+    #sorpresa {
+      display: none;
+      margin-top: 30px;
+    }
+
+    #scimmia {
+      max-width: 90%;
+      width: 400px;
+      height: auto;
+      border-radius: 12px;
+    }
+
+    /* GIF rimbalzanti */
+    .bouncer {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 120px;
+      height: auto;
+      z-index: 10000;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    /* Pioggia di gatti */
+    .gatto-pioggia {
+      position: fixed;
+      top: -120px;
+      z-index: 9999;
+      pointer-events: none;
+      animation: caduta linear forwards;
+    }
+
+    @keyframes caduta {
+      from {
+        transform: translateY(-120px) rotate(0deg);
+      }
+      to {
+        transform: translateY(110vh) rotate(720deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body.party {
+        animation: none;
+      }
+
+      .gatto-pioggia {
+        animation-duration: 5s !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Pagina informativa</h1>
+  <p>Premi qui per visualizzare il contenuto.</p>
+
+  <button id="apri">Visualizza la soluzione</button>
+
+  <div id="sorpresa">
+    <h2>suca 💀</h2>
+
+    <img id="scimmia" src="scimmia.jpg" alt="Scimmia">
+
+    <br><br>
+
+    <audio id="suono" src="audio.mp3" controls loop></audio>
+  </div>
+
+  <div id="bouncers"></div>
+
+  <script>
+    const pulsante = document.getElementById("apri");
+    const sorpresa = document.getElementById("sorpresa");
+    const audio = document.getElementById("suono");
+    const contenitore = document.getElementById("bouncers");
+
+    let pioggiaAttiva = false;
+    let bouncerAttivi = false;
+
+    pulsante.addEventListener("click", async () => {
+      document.body.classList.add("party");
+
+      sorpresa.style.display = "block";
+      pulsante.style.display = "none";
+
+      // Avvia l'audio
+      try {
+        await audio.play();
+      } catch (errore) {
+        audio.controls = true;
+      }
+
+      // Crea 10 GIF rimbalzanti
+      if (!bouncerAttivi) {
+        bouncerAttivi = true;
+
+        const bouncers = [];
+
+        for (let i = 0; i < 10; i++) {
+          const gif = document.createElement("img");
+
+          // Primi 5: chip.gif
+          // Altri 5: duck.gif
+          gif.src = i < 5 ? "chip.gif" : "duck.gif";
+          gif.alt = "";
+          gif.className = "bouncer";
+          gif.style.display = "block";
+
+          contenitore.appendChild(gif);
+
+          bouncers.push({
+            elemento: gif,
+            x: Math.random() * Math.max(1, window.innerWidth - 120),
+            y: Math.random() * Math.max(1, window.innerHeight - 90),
+            dx: (Math.random() < 0.5 ? -1 : 1) *
+                (2 + Math.random() * 3),
+            dy: (Math.random() < 0.5 ? -1 : 1) *
+                (2 + Math.random() * 3)
+          });
+        }
+
+        function muoviBouncers() {
+          for (const b of bouncers) {
+            const gif = b.elemento;
+
+            const maxX = Math.max(
+              0, window.innerWidth - gif.offsetWidth
+            );
+
+            const maxY = Math.max(
+              0, window.innerHeight - gif.offsetHeight
+            );
+
+            b.x += b.dx;
+            b.y += b.dy;
+
+            if (b.x <= 0 || b.x >= maxX) {
+              b.dx *= -1;
+              b.x = Math.max(0, Math.min(b.x, maxX));
+            }
+
+            if (b.y <= 0 || b.y >= maxY) {
+              b.dy *= -1;
+              b.y = Math.max(0, Math.min(b.y, maxY));
+            }
+
+            gif.style.transform =
+              `translate(${b.x}px, ${b.y}px)`;
+          }
+
+          requestAnimationFrame(muoviBouncers);
+        }
+
+        muoviBouncers();
+      }
+
+      // Pioggia di gatti
+      if (!pioggiaAttiva) {
+        pioggiaAttiva = true;
+
+        setInterval(() => {
+          const gatto = document.createElement("img");
+
+          gatto.src = "gatto.jpg";
+          gatto.alt = "";
+          gatto.className = "gatto-pioggia";
+
+          gatto.style.left = Math.random() * 95 + "vw";
+          gatto.style.width =
+            (45 + Math.random() * 60) + "px";
+
+          gatto.style.animationDuration =
+            (2.5 + Math.random() * 2.5) + "s";
+
+          document.body.appendChild(gatto);
+
+          setTimeout(() => gatto.remove(), 5500);
+        }, 180);
+      }
+    });
+  </script>
+</body>
